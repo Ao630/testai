@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>testai</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #e3f2fd; color: #333; margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    
+    /* ヘッダー・ナビゲーション */
+    /* ★ ナビゲーションバー（水色のアクセント） */
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; border-bottom: 4px solid #90caf9; }
+    .nav-bar a { text-decoration: none; color: #0288d1; font-weight: bold; font-size: 14px; }
+
+    .nav-links a { text-decoration: none; color: #007bff; margin-right: 15px; font-weight: bold; }
+    .logout-btn { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+    /* ★ カードデザイン（角を丸く、水色の縁取り） */
+    .file-card { background: white; border-radius: 16px; padding: 25px; margin-bottom: 30px; box-shadow: 0 6px 15px rgba(0,0,0,0.05); border: 1px solid #bbdefb; }
+    .file-title { border-left: 6px solid #2196f3; padding-left: 15px; margin-bottom: 20px; color: #01579b; font-size: 1.4rem; }
+
+    /* 単語一行のリスト */
+    .word-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+    .word-info { flex-grow: 1; }
+    .word-text { font-weight: bold; color: #007bff; margin-right: 10px; }
+    .mean-text { color: #666; }
+
+    /* ★ ボタン群（水色グラデーションと統一感） */
+    .action-group { display: flex; gap: 12px; margin-top: 25px; flex-wrap: wrap; }
+    .btn { border: none; padding: 12px 22px; border-radius: 10px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; text-align: center; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn:active { transform: translateY(2px); }
+    
+    .btn-delete { background: #cfd8dc; color: #546e7a; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+    .btn-delete:hover { background: #ffab91; color: white; }
+    
+    .btn-edit { background: #81d4fa; color: #01579b; }
+    .btn-test { background: #4fc3f7; color: white; box-shadow: 0 4px 0 #0288d1; }
+    .btn-writing { background: #03a9f4; color: white; box-shadow: 0 4px 0 #0277bd; }
+    .btn-adding { background: #e3f2fd; color: white; box-shadow: 0 4px 0 #0277bd; }
+  </style>
+</head>
+<div class="container">
+    <div class="nav-bar">
+    <a href="/">← ホーム画面</a>
+    <% if session[:user_id] %>  
+    <% else %>
+      <a href="/login">ログイン</a>
+    <% end %>
+  </div>
+  <div class="file-card">
+    <h3 class="file-title">セット名: <%= @file %></h3>
+    <div class="word-list">
+      <% @words.each do |userword| %>
+        <div class="word-item"> <div class="word-info">
+          <span class="word-text"><%= userword.word %></span>
+          <span class="mean-text"><%= userword.mean %></span>
+        </div>
+          <form action="/userword-delete" method="post" style="margin: 0;">
+            <input type="hidden" name="id" value="<%= userword.id %>">
+            <button type="submit" class="btn btn-delete">削除</button>
+      　　  </form>
+        </div>
+      <% end %>
+    </div>
+    <div class="action-group">
+      <form action="/addword" method="get">
+        <input type="hidden" name="file" value="<%= @file %>">
+        <button type="submit" class="btn btn-edit">単語を編集</button>
+      </form>
+      <!--<form action="/reload-test" method="post">-->
+      <!--  <input type="hidden" name="file" value="<%= @file %>">-->
+      <!--  <button type="submit" class="btn btn-test">選択肢テスト</button>-->
+      <!--</form>-->
+      <form action="/writing-test" method="get">
+        <input type="hidden" name="file" value="<%= @file %>">
+        <button type="submit" class="btn btn-writing">書き取りテスト</button>
+      </form>
+    </div>
+    </a>
+</div>
+</div>
+</body>
+</html>

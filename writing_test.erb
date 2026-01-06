@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>testai</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #e3f2fd;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    .test-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+  border: 1px solid #bbdefb;
+}
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* ナビ風ステータス */
+    .status-bar {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+      border-bottom: 4px solid #90caf9;
+      font-weight: bold;
+      color: #01579b;
+    }
+
+    /* カード */
+    .word-card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+      border: 1px solid #bbdefb;
+    }
+
+    .question {
+      border-left: 6px solid #2196f3;
+      padding-left: 15px;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      color: #01579b;
+    }
+
+    /* 入力 */
+    .answer-input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #90caf9;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      outline: none;
+    }
+
+    .answer-input:focus {
+      border-color: #2196f3;
+      box-shadow: 0 0 0 2px rgba(33,150,243,0.2);
+    }
+
+    /* ボタン */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      padding: 12px 22px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+    }
+
+    .btn-submit {
+      background: #4fc3f7;
+      color: white;
+      box-shadow: 0 4px 0 #0288d1;
+    }
+
+    .btn-giveup {
+      background: #cfd8dc;
+      color: #546e7a;
+    }
+
+    .btn-giveup:hover {
+      background: #ffab91;
+      color: white;
+    }
+
+    /* 判定表示 */
+    .judgement {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .correct { color: #2e7d32; }
+    .wrong { color: #c62828; }
+
+    /* 結果画面 */
+    #result-screen {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+      border: 1px solid #bbdefb;
+      text-align: center;
+    }
+
+    #mistakes-section {
+      text-align: left;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+  <div class="test-container">
+    <div id="score-status" style="margin-bottom: 20px; font-weight: bold;">
+      進行状況: <span id="current-pos">1</span> / <%= @filewords.size %>
+    </div>
+    <% @filewords.each_with_index do |word, index| %>
+      <div class="word-card" id="card-<%= index %>" style="<%= 'display:none;' if index > 0 %>">
+      <div class="question">
+        意味：<strong><%= word.mean %></strong>
+      </div>
+        
+        <div id="judgement-<%= index %>" class="judgement" style="display:none;"></div>
+        <div class="answer-section" id="answer-section-<%= index %>">
+          
+          <input
+          type="text"
+          class="answer-input"
+          id="input-<%= index %>"
+          placeholder="スペルを入力..."
+          autocomplete="off"
+          onkeydown="if(event.key==='Enter'){checkAnswer(<%= index %>,'<%= word.word %>','<%= word.mean %>')}"
+        >
+            <div class="button-group">
+          <button class="btn btn-submit"
+            onclick="checkAnswer(<%= index %>, '<%= word.word %>')">
+            回答
+          </button>
+
+          <button class="btn btn-giveup"
+            onclick="giveUp(<%= index %>, '<%= word.word %>', '<%= word.mean %>')">
+            わからない
+          </button>
+          </div>
+        </div>
+        
+        <p class="feedback" id="feedback-<%= index %>"></p>
+      </div>
+    <% end %>
+
+      <!-- 結果画面 -->
+  <div id="result-screen" style="display:none;">
+    <h2>お疲れ様でした！</h2>
+
+    <div id="mistakes-section" style="display:none;">
+      <h3>間違えた・わからなかった問題</h3>
+      <ul id="mistakes-list"></ul>
+    </div>
+
+    <div class="button-group" style="justify-content:center; margin-top:20px;">
+      <button class="btn btn-submit" onclick="location.reload()">もう一度挑戦</button>
+      <a href="/" class="btn btn-giveup" style="text-decoration:none;">ホームへ戻る</a>
+    </div>
+  </div>
+  </div>
+  </div>
+  
+</body>
+</html>
+<script>
+  let isProcessing = false; // // ★ 連打防止用のフラグ（処理中かどうか）
+  let correctTotal = 0;
+  const totalQuestions = <%= @filewords.size %>;
+  const mistakes = [];
+  
+  
+  // Enterキーが押されたか判定する関数
+  function handleKeyPress(event, index, correctWord, meaning) {
+    if (event.key === 'Enter') {
+      checkAnswer(index, correctWord, meaning);
+    }
+  }
+  
+  function checkAnswer(index, correctWord, meaning) {
+      if (isProcessing) return; // // ★ 処理中なら命令を無視する
+      const inputField = document.getElementById(`input-${index}`);
+      const feedback = document.getElementById(`feedback-${index}`);
+      const userAnswer = inputField.value.trim();
+      // 回答が空の場合は何もしない（誤操作防止）
+      if (userAnswer === "") return;
+      // // ★ 制御する要素を取得
+      const judgementDiv = document.getElementById(`judgement-${index}`);
+      const answerSection = document.getElementById(`answer-section-${index}`);
+      if (userAnswer.toLowerCase() === correctWord.toLowerCase()) {
+      isProcessing = true; // // ★ロック開始
+        // --- 正解時の処理 ---
+        // // ★ フォームを消して「正解⭕️」を出す
+      answerSection.style.display = 'none';
+      judgementDiv.style.display = 'block';
+      judgementDiv.innerHTML = '<span style="color: green;">正解 ⭕️</span>';
+        // 少し待ってから次の問題へ
+        setTimeout(() => {
+          showNext(index);
+          isProcessing = false; // // ★ 次の問題へ行く時にロック解除
+        }, 1000);
+        
+      } else {
+        feedback.innerText = "不正解。もう一度！";
+        feedback.style.color = "red";
+        // 間違いリストに追加（重複防止）
+        if (!mistakes.find(m => m.word === correctWord)) {
+          mistakes.push({ word: correctWord, mean: meaning });
+        }
+        // 不正解のときは入力を全選択状態にすると修正しやすい
+        inputField.select();
+      }
+    }
+
+function giveUp(index, correctWord, meaning) {
+    if (isProcessing) return; // // ★ 処理中なら無視
+    isProcessing = true; // // ★ ロックをかける
+    const judgementDiv = document.getElementById(`judgement-${index}`);
+    const answerSection = document.getElementById(`answer-section-${index}`);
+    // 正解を表示する
+    // // ★ フォームを消して正解を大きく表示
+    answerSection.style.display = 'none';
+    judgementDiv.style.display = 'block';
+    judgementDiv.innerHTML = `<span style="color: #ff8c00;">正解は：${correctWord}</span>`;
+// わからない場合も間違いリストに追加
+    mistakes.push({ word: correctWord, mean: meaning });
+    // 正解を確認させるために少し長めに待ってから次へ
+    if (!mistakes.find(m => m.word === correctWord)) {
+      mistakes.push({ word: correctWord, mean: meaning });
+    }
+    setTimeout(() => {
+      showNext(index);
+      isProcessing = false; // // ★ ロック解除
+    }, 2000);
+  }
+  
+    function showNext(currentIndex) {
+      document.getElementById(`card-${currentIndex}`).style.display = 'none';
+      const nextIndex = currentIndex + 1; // // ★次へ進むための計算
+      const nextCard = document.getElementById(`card-${nextIndex}`);
+      
+      if (nextCard) {
+        nextCard.style.display = 'block';
+        // 進行状況の数字を更新
+        const nextInput = nextCard.querySelector('input');
+        nextInput.value = ""; // 次の問題の入力欄を空にする
+        nextInput.focus();    // 次の問題にフォーカスを合わせる
+        document.getElementById('current-pos').innerText = nextIndex + 1;
+      } else {
+        showResults();
+      }
+    }
+    
+    function showResults() {
+    // // ★進行状況を非表示にする
+    const scoreStatus = document.getElementById('score-status');
+    if (scoreStatus) scoreStatus.style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+
+    if (mistakes.length > 0) {
+      const list = document.getElementById('mistakes-list');
+      list.innerHTML = ""; // 二重表示防止
+      mistakes.forEach(m => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${m.word}</strong> (${m.mean})`;
+        list.appendChild(li);
+      });
+      document.getElementById('mistakes-section').style.display = 'block';
+    }
+  }
+</script>

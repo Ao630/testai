@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>testai</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #e3f2fd; color: #333; margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    
+    /* ヘッダー・ナビゲーション */
+    /* ★ ナビゲーションバー（水色のアクセント） */
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; border-bottom: 4px solid #90caf9; }
+    .nav-links a { text-decoration: none; color: #007bff; margin-right: 15px; font-weight: bold; }
+    .logout-btn { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+    /* ★ カードデザイン（角を丸く、水色の縁取り） */
+    .file-card { background: white; border-radius: 16px; padding: 25px; margin-bottom: 30px; box-shadow: 0 6px 15px rgba(0,0,0,0.05); border: 1px solid #bbdefb; }
+    .file-title { border-left: 6px solid #2196f3; padding-left: 15px; margin-bottom: 20px; color: #01579b; font-size: 1.4rem; }
+
+    /* 単語一行のリスト */
+    .word-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+    .word-info { flex-grow: 1; }
+    .word-text { font-weight: bold; color: #007bff; margin-right: 10px; }
+    .mean-text { color: #666; }
+
+    /* ★ ボタン群（水色グラデーションと統一感） */
+    .action-group { display: flex; gap: 12px; margin-top: 25px; flex-wrap: wrap; }
+    .btn { border: none; padding: 12px 22px; border-radius: 10px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; text-align: center; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn:active { transform: translateY(2px); }
+    
+    .btn-delete { background: #cfd8dc; color: #546e7a; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+    .btn-delete:hover { background: #ffab91; color: white; }
+    
+    .btn-edit { background: #81d4fa; color: #01579b; }
+    .btn-test { background: #4fc3f7; color: white; box-shadow: 0 4px 0 #0288d1; }
+    .btn-writing { background: #03a9f4; color: white; box-shadow: 0 4px 0 #0277bd; }
+    .btn-adding { background: #e3f2fd; color: white; box-shadow: 0 4px 0 #0277bd; }
+  </style>
+</head>
+<body>
+<div class="container"> <div class="nav-bar">
+  <div class="nav-links">
+    <a href="/create" class="btn btn-adding">新規単語セット作成</a>
+  </div>
+  <div class="nav-links">
+    <% if session[:user_id] %>
+      <span style="font-size: 14px;" class="word-text">ログイン中: <%= session[:user_id].to_s %></span>
+      <form action="/logout" method="post" id="logout">
+        <button type="submit" class="btn btn-writing">ログアウト</button>
+      </form>
+    <% else %>
+      <a href="/login"　style="color: white;">ログイン</a>
+    <% end %>
+  </div>
+</div>
+
+<h2>📚 自分の単語帳</h2>
+<% if @userfiles %>
+<% if session[:user_id] %>
+  <% @userfiles.each do |userfile| %>
+  <a href="/<%= userfile %>/details">
+  <div class="file-card">
+    <h3 class="file-title">セット名: <%= userfile %></h3>
+    </a>
+  </div>
+  <% end %>
+  
+  <% else %>
+  <div class="file-card" style="text-align: center;">
+      <h3>表示するにはログインしてください</h3>
+      <a href="/login" class="btn btn-writing">ログイン画面へ</a>
+  </div>
+<% end %>
+<% else %>
+<% @userfiles = [] %>
+<% end %>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アカウント登録 - testai</title>
+  <style>
+    /* ★ 全体の背景を淡い水色に統一 */
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #e3f2fd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    /* ★ 入力エリアを白いカード形式にする */
+    .auth-card {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      border: 1px solid #bbdefb;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #0277bd;
+      margin-bottom: 25px;
+    }
+
+    /* ★ 入力フォームのデザインを整える */
+    .auth-form input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border: 2px solid #e1f5fe;
+      border-radius: 10px;
+      font-size: 16px;
+      box-sizing: border-box; /* 幅がはみ出さないように */
+      transition: border-color 0.3s;
+    }
+
+    .auth-form input:focus {
+      outline: none;
+      border-color: #03a9f4; /* フォーカス時に水色に */
+    }
+
+    /* ★ 登録ボタンを水色にする（書き取りテストボタンと同じ色） */
+    .btn-submit {
+      width: 100%;
+      background: #03a9f4;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #0277bd;
+      transition: transform 0.1s;
+    }
+
+    .btn-submit:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #0277bd;
+    }
+
+    p {
+      color: #666;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+
+    p a {
+      color: #0288d1;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    /* ★ 戻るボタンのデザイン */
+    .btn-back {
+      display: inline-block;
+      margin-top: 20px;
+      color: #b0bec5;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .btn-back:hover {
+      color: #78909c;
+    }
+  </style>
+<body>
+<div class="auth-card"> <h2>アカウント登録</h2>
+    
+    <form action="/signup" method="post" class="auth-form"> <input type="text" placeholder="ニックネーム" name="name" required />
+        <input type="email" placeholder="メールアドレス" name="mail" required /> <input type="password" placeholder="パスワード" name="password" required />
+        
+        <button type="submit" class="btn-submit"> アカウント登録
+        </button>
+        
+        <p>すでにアカウントをお持ちの方は<a href="/login">こちら</a></p>
+    </form>
+    
+    <a href="/" class="btn-back">戻る</a> </div>
+</body>
+</html>

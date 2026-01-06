@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>testai</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <% session[:wordlist].each do |word, mean| %>
+  <div>
+    <a><%= mean %></a>
+  </div>
+  <div class="btn-container">
+    <button id="btn2<%= word %>">答えを表示する</button>
+    <!-- クリックで表示させるテキストにはhiddenクラスを付ける -->
+    <p id="btn2-text<%= word %>" class="hidden"><%= word %></p>
+  </div>
+  <% end %>
+<a href="/">ホーム画面</a>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery.min.js"></script>
+<script>
+<% session[:words].each do |word| %>
+  const btn2<%= word %> = document.getElementById('btn2<%= word %>');
+  const btn2Text<%= word %> = document.getElementById('btn2-text<%= word %>');
+  
+  btn2<%= word %>.addEventListener('click', () => {
+    // ボタンクリックでhiddenクラスを付け外しする
+    btn2Text<%= word %>.classList.toggle('hidden');
+  });
+<% end %>
+</script>

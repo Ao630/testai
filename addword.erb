@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>testai</title>
+  <style>
+    /* ★ 全体のトーンを水色に統一 */
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #e3f2fd; color: #333; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    
+    /* ★ ヘッダー情報（ファイル名など） */
+    .header-info { background: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border-left: 6px solid #2196f3; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .header-info h2 { margin: 0; font-size: 1.2rem; color: #01579b; }
+
+    /* ★ 単語リストカード */
+    .word-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
+    .word-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #e1f5fe; }
+    .word-text { font-weight: bold; color: #1e88e5; }
+    .mean-text { color: #546e7a; flex-grow: 1; margin-left: 15px; }
+
+    /* ★ 入力フォームエリア */
+    .form-section { background: #bbdefb; padding: 20px; border-radius: 15px; margin-top: 20px; }
+    .form-title { font-weight: bold; color: #01579b; margin-bottom: 15px; display: block; }
+    .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+    
+    input[type="text"] {
+      flex: 1; padding: 12px; border: 2px solid white; border-radius: 8px; font-size: 14px; outline: none; transition: 0.3s;
+    }
+    input[type="text"]:focus { border-color: #03a9f4; }
+
+    /* ★ ボタン類 */
+    .btn { border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    .btn-add { background: #03a9f4; color: white; width: 50px; font-size: 20px; box-shadow: 0 3px 0 #0277bd; }
+    .btn-ai { background: #81d4fa; color: #01579b; box-shadow: 0 3px 0 #4fc3f7; }
+    .btn-delete { background: #cfd8dc; color: #546e7a; font-size: 12px; }
+    .btn-submit { background: #28a745; color: white; width: 100%; padding: 15px; margin-top: 20px; box-shadow: 0 4px 0 #1e7e34; }
+    
+    .footer-links { text-align: center; margin-top: 30px; }
+    .footer-links a { color: #0288d1; text-decoration: none; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header-info">
+    <h2>セット名: <%= @file %></h2>
+  </div>
+
+  <div class="word-card">
+    <% if @filewords == nil %>
+      <p style="color: #999; text-align: center;">単語がまだありません</p>
+    <% else %>
+      <% @filewords.each do |word| %>
+        <div class="word-item">
+          <div class="word-info">
+            <span class="word-text"><%= word.word %></span>
+            <span class="mean-text"><%= word.mean %></span>
+          </div>
+          <form action="/addword-delete" method="get" style="margin:0;">
+            <input type="hidden" name="id" value="<%= word.id %>">
+            <input type="hidden" name="file" value="<%= @file %>">
+            <button type="submit" class="btn btn-delete">削除</button>
+          </form>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="form-section">
+    <span class="form-title">単語を手動で追加</span>
+    <form action="/plusaddword" method="post" class="input-group">
+      <input type="text" name="word" placeholder="単語" required/>
+      <input type="text" name="mean" placeholder="定義" required/>
+      <input type="hidden" name="file" value="<%= @file %>">
+      <button type="submit" class="btn btn-add">＋</button>
+    </form>
+
+    <span class="form-title">AIで定義を自動入力</span>
+    <form action="/addword-ai" method="get" class="input-group">
+      <input type="text" name="word" placeholder="単語を入力..." required/>
+      <input type="hidden" name="file" value="<%= @file %>">
+      <button type="submit" class="btn btn-ai">AIで追加</button>
+    </form>
+  </div>
+<%= @file %>
+  <form action="/addmake-test" method="post">
+    <input type="hidden" name="file" value="<%= @file %>">
+    <button type="submit" class="btn btn-submit">編集を完了して保存</button>
+  </form>
+
+  <div class="footer-links">
+    <a href="/">← ホーム画面へ戻る</a>
+    <div style="margin-top: 15px; font-size: 12px; color: #78909c;">
+      <% if session[:user_id] %>
+        ログイン済み: <%= session[:user_id].to_s %>
+      <% else %>
+        未ログイン
+      <% end %>
+    </div>
+  </div>
+
+</div>
+<script>
+  // デフォルト：/create から離れたら削除する
+  let shouldSendLeave = true;
+
+  // -----------------------------
+  // ① /make-test に行くときは削除しない
+  // -----------------------------
+  const makeTestForm = document.getElementById("make-test");
+  if (makeTestForm) {
+    makeTestForm.addEventListener("submit", function () {
+      shouldSendLeave = false;
+    });
+  }
+
+  // -----------------------------
+  // ② /create 内の操作（単語追加 / AI定義 / 削除）は削除しない
+  // action 属性で判定する
+  // -----------------------------
+  const stayForms = document.querySelectorAll(
+    'form[action="/word-setting"], form[action="/word-ai"], form[action="/word-delete"]'
+  );
+  stayForms.forEach(form => {
+    form.addEventListener("submit", function () {
+      shouldSendLeave = false;
+    });
+  });
+
+  // -----------------------------
+  // ③ ページ離脱時（/create → 他のページ）だけ削除APIを叩く
+  // -----------------------------
+  window.addEventListener("beforeunload", function () {
+    if (!shouldSendLeave) return;
+
+    navigator.sendBeacon(
+      "/leave_create",
+      new Blob([JSON.stringify({ left: true })], { type: "application/json" })
+    );
+  });
+</script>
+</body>
+</html>

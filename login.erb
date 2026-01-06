@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン - testai</title>
+  <style>
+    /* ★ 背景色を薄い水色で統一 */
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #e3f2fd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    /* ★ カード形式のデザイン */
+    .auth-card {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      border: 1px solid #bbdefb;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #0277bd;
+      margin-bottom: 10px;
+    }
+
+    .sub-text {
+      color: #546e7a;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    /* ★ 入力フォームのデザイン */
+    .auth-form input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border: 2px solid #e1f5fe;
+      border-radius: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+
+    .auth-form input:focus {
+      outline: none;
+      border-color: #03a9f4;
+    }
+
+    /* ★ ログインボタン（水色基調） */
+    .btn-submit {
+      width: 100%;
+      background: #03a9f4;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #0277bd;
+      transition: transform 0.1s;
+    }
+
+    .btn-submit:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #0277bd;
+    }
+
+    p {
+      color: #666;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+
+    p a {
+      color: #0288d1;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    /* ★ 戻るボタン */
+    .btn-back {
+      display: inline-block;
+      margin-top: 20px;
+      color: #b0bec5;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .btn-back:hover {
+      color: #78909c;
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-card"> <h2>ログイン</h2>
+    <p class="sub-text">今日を共有しよう</p> <form action="/login" method="post" class="auth-form"> <input type="email" placeholder="メールアドレス" name="mail" required /> <input type="password" placeholder="パスワード" name="password" required />
+        
+        <button type="submit" class="btn-submit">
+            ログイン
+        </button>
+        
+        <p>はじめてご利用の方は<a href="/signup">こちら</a></p>
+    </form>
+    
+    <a href="/" class="btn-back">戻る</a>
+</div>
+
+</body>
+</html>
